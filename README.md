@@ -228,5 +228,5 @@ Machine learning is used only for perception tasks such as victim detection. Cor
 
 ## Author
 
-Pavan Kumar MG
-Team Lead, Swarm Drones
+-Pavan Kumar MG.
+-Team Lead, Swarm Drones
