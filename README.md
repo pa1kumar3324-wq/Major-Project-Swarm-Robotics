@@ -167,35 +167,6 @@ These metrics enable quantitative assessment of swarm intelligence.
 - Ubuntu Linux  
 - Planned migration to ROS2  
 
----
-
-## Directory Structure
----
-swarm/
-│
-├── main.py
-│ └── Simulation execution entry point
-│
-├── src/
-│ ├── drone.py
-│ │ └── Autonomous drone agent definition
-│ ├── swarm.py
-│ │ └── Distributed coordination algorithms
-│ └── world.py
-│ └── Environment and target modeling
-│
-├── simulations/
-│ └── Experimental configurations and scenario files
-│
-├── utils/
-│ └── Shared utility functions
-│
-├── requirements.txt
-│ └── Dependency specification
-│
-└── README.md
-└── Project documentation
-
 ## Implementation Roadmap
 
 ### Phase 1: Simulation
