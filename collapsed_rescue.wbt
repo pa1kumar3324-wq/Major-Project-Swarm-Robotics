@@ -1,0 +1,210 @@
+#VRML_SIM R2023b utf8
+
+WorldInfo {
+  basicTimeStep 32
+  gravity 0 -9.81 0
+}
+
+Viewpoint {
+  position 8 10 15
+  orientation -0.4 0.9 0.1 2.3
+}
+
+TexturedBackground {}
+TexturedBackgroundLight {}
+
+# =========================
+# GROUND
+# =========================
+Solid {
+  translation 0 0 0
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.3 0.3 0.3
+        roughness 1
+      }
+      geometry Box {
+        size 30 0.2 30
+      }
+    }
+  ]
+  boundingObject Box {
+    size 30 0.2 30
+  }
+  physics Physics {
+    density -1
+    mass 0
+  }
+}
+
+# =========================
+# COLLAPSED BUILDING DEBRIS
+# =========================
+
+# Large tilted slab
+Solid {
+  translation 2 1 3
+  rotation 0 0 1 0.5
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.5 0.5 0.5
+      }
+      geometry Box {
+        size 6 0.5 3
+      }
+    }
+  ]
+  boundingObject Box {
+    size 6 0.5 3
+  }
+  physics Physics {
+    density 2400
+  }
+}
+
+# Broken wall piece
+Solid {
+  translation -3 0.7 -2
+  rotation 1 0 0 0.4
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.6 0.6 0.6
+      }
+      geometry Box {
+        size 4 1 0.4
+      }
+    }
+  ]
+  boundingObject Box {
+    size 4 1 0.4
+  }
+  physics Physics {
+    density 2200
+  }
+}
+
+# Concrete beam
+Solid {
+  translation 0 1.5 0
+  rotation 0 1 0 1.2
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.4 0.4 0.4
+      }
+      geometry Box {
+        size 5 0.3 0.3
+      }
+    }
+  ]
+  boundingObject Box {
+    size 5 0.3 0.3
+  }
+  physics Physics {
+    density 2500
+  }
+}
+
+# Debris pile (cluster)
+Solid {
+  translation 4 0.5 -3
+  children [
+    Shape {
+      geometry Box { size 1 1 1 }
+    }
+    Shape {
+      geometry Box { size 0.8 0.6 1.2 }
+      translation 0.5 0.3 0.3
+    }
+  ]
+  boundingObject Group {
+    children [
+      Box { size 1 1 1 }
+      Box { size 0.8 0.6 1.2 }
+    ]
+  }
+  physics Physics {
+    density 2000
+  }
+}
+
+# =========================
+# TRAPPED PEOPLE (SIMULATED VICTIMS)
+# =========================
+
+# Victim 1 (under slab)
+Solid {
+  translation 2 0.3 3
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0 0
+      }
+      geometry Sphere {
+        radius 0.25
+      }
+    }
+  ]
+  name "victim_1"
+  boundingObject Sphere {
+    radius 0.25
+  }
+  physics Physics {
+    density 1000
+  }
+}
+
+# Victim 2 (behind debris)
+Solid {
+  translation -3 0.3 -2
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.2 0.2
+      }
+      geometry Sphere {
+        radius 0.25
+      }
+    }
+  ]
+  name "victim_2"
+  boundingObject Sphere {
+    radius 0.25
+  }
+  physics Physics {
+    density 1000
+  }
+}
+
+# Victim 3 (open but obstructed path)
+Solid {
+  translation 4 0.3 -3
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0.3 0.3
+      }
+      geometry Sphere {
+        radius 0.25
+      }
+    }
+  ]
+  name "victim_3"
+  boundingObject Sphere {
+    radius 0.25
+  }
+  physics Physics {
+    density 1000
+  }
+}
+
+# =========================
+# LIGHTING
+# =========================
+DirectionalLight {
+  direction -0.5 -1 -0.3
+  intensity 1
+}
