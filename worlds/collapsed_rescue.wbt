@@ -1,13 +1,212 @@
 #VRML_SIM R2023b utf8
 
+PROTO SwarmDrone [
+  field SFVec3f    translation 0 0.12 0
+  field SFRotation rotation 0 1 0 0
+  field SFString   name "drone0"
+]
+{
+  Robot {
+    translation IS translation
+    rotation IS rotation
+    name IS name
+    controller "swarm_controller"
+    supervisor FALSE
+    children [
+      GPS {
+        name "gps"
+      }
+      InertialUnit {
+        name "inertial unit"
+      }
+      Emitter {
+        name "emitter"
+        channel 0
+      }
+      Receiver {
+        name "receiver"
+        channel 0
+      }
+      Pose {
+        translation 0 0 0.0415
+        rotation 0 0 1 -1.570796
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.08 0.36 0.8
+              roughness 1
+              metalness 0
+            }
+            geometry DEF BODY Cylinder {
+              height 0.08
+              radius 0.045
+            }
+          }
+        ]
+      }
+      HingeJoint {
+        jointParameters HingeJointParameters {
+          axis 0 1 0
+          anchor 0 0 0.025
+        }
+        device [
+          RotationalMotor {
+            name "motor1"
+            maxVelocity 50
+          }
+        ]
+        endPoint Solid {
+          translation 0 0.045 0.025
+          rotation 0.1344869543855967 -0.1344869543855967 -0.9817466670176034 1.589217
+          children [
+            DEF WHEEL Pose {
+              rotation 0.577656895078166 0.5771968951617173 -0.5771968951617173 -2.093935
+              children [
+                Shape {
+                  appearance PBRAppearance {
+                    baseColor 0.12 0.12 0.12
+                    roughness 1
+                    metalness 0
+                  }
+                  geometry Cylinder {
+                    height 0.01
+                    radius 0.025
+                  }
+                }
+              ]
+            }
+          ]
+          name "left wheel"
+          boundingObject USE WHEEL
+          physics DEF PHYSICS_WHEEL Physics {
+            density -1
+            mass 0.05
+          }
+        }
+      }
+      HingeJoint {
+        jointParameters HingeJointParameters {
+          axis 0 1 0
+          anchor 0 0 0.025
+        }
+        device [
+          RotationalMotor {
+            name "motor2"
+            maxVelocity 50
+          }
+        ]
+        endPoint Solid {
+          translation 0 -0.045 0.025
+          rotation -0.06235700094427208 0.06235700094427208 -0.9961040150840033 1.5747
+          children [
+            USE WHEEL
+          ]
+          name "right wheel"
+          boundingObject USE WHEEL
+          physics USE PHYSICS_WHEEL
+        }
+      }
+      DistanceSensor {
+        translation 0.042 0 0.063
+        rotation 0 0 -1 -0.499205
+        children [
+          DEF SENSOR_POSE Pose {
+            rotation 0.577656895078166 0.5771968951617173 -0.5771968951617173 -2.093935
+            children [
+              Shape {
+                appearance PBRAppearance {
+                  baseColor 0.85 0.85 0.2
+                  roughness 1
+                  metalness 0
+                }
+                geometry Cylinder {
+                  height 0.004
+                  radius 0.008
+                }
+              }
+            ]
+          }
+        ]
+        name "front_distance"
+        lookupTable [
+          0 1024 0
+          0.05 1024 0
+          3.5 0 0
+        ]
+        numberOfRays 3
+      }
+      DistanceSensor {
+        translation 0 0 0.01
+        rotation 1 0 0 4.71238898038469
+        name "ground_distance"
+        lookupTable [
+          0 1024 0
+          0.02 1024 0
+          0.5 0 0
+        ]
+      }
+      Camera {
+        translation 0.04 0 0.0915
+        children [
+          Pose {
+            translation -0.015 0 0
+            rotation -0.5771968951617173 -0.577656895078166 -0.5771968951617173 -2.093935
+            children [
+              Shape {
+                appearance PBRAppearance {
+                  roughness 1
+                  metalness 0
+                }
+                geometry Cylinder {
+                  height 0.03
+                  radius 0.01
+                }
+              }
+            ]
+          }
+        ]
+        name "camera"
+        fieldOfView 0.9
+        width 80
+        height 60
+        antiAliasing TRUE
+      }
+    ]
+    boundingObject Pose {
+      translation 0 0 0.0415
+      rotation 0 0 1 -1.570796
+      children [
+        USE BODY
+      ]
+    }
+    physics Physics {
+      density -1
+      mass 0.55
+    }
+  }
+}
+
 WorldInfo {
+  title "Collapsed building — decentralized SAR swarm"
+  info [
+    "Swarm UGVs share map and victim cues over radio (emitter/receiver)."
+    "Set Webots project directory to the repository root (folders worlds/ and controllers/)."
+  ]
   basicTimeStep 32
   gravity 0 -9.81 0
+  contactProperties [
+    ContactProperties {
+      coulombFriction [
+        4
+      ]
+      softCFM 1e-05
+    }
+  ]
 }
 
 Viewpoint {
-  position 20 25 30
-  orientation -0.4 0.9 0.1 2.3
+  position 35 28 38
+  orientation -0.35 0.85 0.38 2.45
 }
 
 TexturedBackground {}
@@ -260,4 +459,23 @@ Solid {
 DirectionalLight {
   direction -0.5 -1 -0.3
   intensity 1
+}
+
+# =========================
+# SWARM (differential-drive agents)
+# =========================
+SwarmDrone {
+  translation -6 0.12 6
+  rotation 0 1 0 0.785398
+  name "drone0"
+}
+SwarmDrone {
+  translation 2 0.12 10
+  rotation 0 1 0 -0.3
+  name "drone1"
+}
+SwarmDrone {
+  translation 10 0.12 -4
+  rotation 0 1 0 2.2
+  name "drone2"
 }
