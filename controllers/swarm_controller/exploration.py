@@ -25,4 +25,10 @@ class Exploration:
         x, y, _ = current_position
         dx = random.uniform(-5.0, 5.0)
         dy = random.uniform(-5.0, 5.0)
-        return (x + dx, y + dy)
+        nx, ny = x + dx, y + dy
+        limit = 38.0
+        return (
+            max(-limit, min(limit, nx)),
+            max(-limit, min(limit, ny)),
+            0.0,
+        )

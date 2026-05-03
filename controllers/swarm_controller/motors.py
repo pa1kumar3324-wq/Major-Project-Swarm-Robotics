@@ -1,7 +1,12 @@
 class Motors:
     def __init__(self, robot):
-        self.left_motor = robot.getDevice("motor1")
-        self.right_motor = robot.getDevice("motor2")
+        try:
+            self.left_motor = robot.getDevice("motor1")
+            self.right_motor = robot.getDevice("motor2")
+        except (AttributeError, TypeError) as e:
+            raise RuntimeError(
+                "Expected differential-drive motors named motor1 and motor2 on the Robot node."
+            ) from e
 
         for motor in (self.left_motor, self.right_motor):
             motor.setPosition(float("inf"))

@@ -127,20 +127,29 @@ Upon victim detection:
 
 ## Simulation Environment
 
-The initial implementation is developed in Python using:
+### Webots (3D SAR scene)
 
-- NumPy for vector computations  
-- Pygame for real-time visualization  
+The repository includes a **Webots** world that models a collapsed-building search area with debris, voids, and multiple **red sphere “victim” markers** for camera-based detection.
+
+- **World:** `worlds/collapsed_rescue.wbt` — ground terrain, rubble, tunnel, and named victim solids.
+- **Agents:** three differential-drive **SwarmDrone** robots (`drone0`, `drone1`, `drone2`) defined in the same file via a `PROTO`. Each robot runs the Python controller `swarm_controller` and is equipped with GPS, inertial unit, forward and ground distance sensors, camera, and emitter/receiver on a shared channel for decentralized map and victim updates.
+- **Coordinates:** Webots uses a **Y-up** world frame. The controller maps GPS readings to a **horizontal exploration plane** `(x, z)` (stored as `position` with components `(plane_x, plane_y, altitude)` in Python) so mapping, navigation, and shared positions stay consistent on the ground.
+- **Victim detection:** alerts are raised from **camera color cues** (strong red in view). Proximity to obstacles is **not** treated as a victim.
+
+**Running the simulation:** Open Webots, set the **project directory** to this repository root (the folder that contains `worlds/` and `controllers/`), then open `worlds/collapsed_rescue.wbt` and run. Webots resolves `controller "swarm_controller"` to `controllers/swarm_controller/`.
+
+### Original 2D prototype (reference)
+
+An earlier design target used Python with NumPy and Pygame for a **2D** bounded environment. That layout is not present in this repository snapshot; the **authoritative runnable simulation here is Webots**.
 
 ### Simulation Assumptions
 
-- 2D bounded environment  
-- Static obstacles  
-- Static victim targets  
-- Limited communication range  
-- Identical drone software instances  
+- Bounded environment (large ground slab in Webots; 2D in the Pygame design)  
+- Static obstacles and victim targets  
+- Local radio-style messaging (emitter/receiver range in Webots)  
+- Identical controller software on each agent  
 
-This controlled environment allows algorithm validation before real-world deployment.
+This controlled environment supports algorithm validation before real-world deployment.
 
 ---
 
@@ -161,35 +170,38 @@ These metrics enable quantitative assessment of swarm intelligence.
 
 ## Technology Stack
 
-- Python 3  
-- NumPy  
-- Pygame  
-- Ubuntu Linux  
+- Python 3 (Webots controller API)  
+- [Webots](https://cyberbotics.com/) — 3D physics and sensors  
+- NumPy / Pygame — referenced for an optional 2D prototype path  
+- Ubuntu Linux (typical for Webots; Windows/macOS also supported by Webots)  
 - Planned migration to ROS2  
 
 ## Directory Structure
 
 ```
-swarm/
-├── main.py # Entry point for simulation
-├── README.md # Project documentation
-├── requirements.txt # Python dependencies
-├── PROJECT_PLAN.md # Architecture and design notes
-├── src/ # Core source code
-│   ├── drone.py # Individual drone model
-│   ├── swarm.py # Swarm coordination logic
-│   └── world.py # Environment definition
-├── simulations/ # Experimental scenarios
-├── utils/ # Utility/helper functions
-└── venv/ # Virtual environment (not pushed to Git)
+Major-Project-Swarm-Robotics/
+├── README.md
+├── worlds/
+│   └── collapsed_rescue.wbt    # SAR scene + SwarmDrone PROTO and instances
+└── controllers/
+    └── swarm_controller/         # Python controller (one process per robot)
+        ├── swarm_controller.py   # Main loop: perception → mapping → comm → explore → navigate
+        ├── perception.py         # GPS / IMU / camera / distance sensors
+        ├── mapping.py            # Local grid map and shared updates
+        ├── communication.py      # Emitter / receiver JSON messages
+        ├── exploration.py        # Frontier and goal selection
+        ├── navigation.py         # Differential-drive command generation
+        ├── detection.py          # Victim cue from camera
+        ├── motors.py             # motor1 / motor2 velocity control
+        └── utils.py              # Serialization, clamp, distance helpers
 ```
 
 ## Implementation Roadmap
 
 ### Phase 1: Simulation
-- Multi-agent motion implementation  
-- Swarm coordination rules  
-- Distributed exploration logic  
+- Multi-agent motion in **Webots** (differential drive, sensors, local radio)  
+- Swarm coordination rules and shared mapping in the Python controller  
+- Distributed exploration logic (frontiers, random goals within arena bounds)  
 
 ### Phase 2: Advanced Autonomy
 - Victim detection integration  

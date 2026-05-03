@@ -1,4 +1,7 @@
+import math
+
 from controller import Robot
+
 
 class Perception:
     def __init__(self, robot, timestep):
@@ -50,9 +53,17 @@ class Perception:
         }
 
     def _get_position(self):
-        if self.gps:
-            return tuple(self.gps.getValues())
-        return (0.0, 0.0, 0.0)
+        """Return (plane_x, plane_y, altitude) using Webots Y-up world frame.
+
+        Exploration and mapping use the horizontal X–Z plane; GPS returns (x, y, z)
+        with y vertical, so we expose (x, z, y) for consistent 2D navigation.
+        """
+        if not self.gps:
+            return None
+        x, y, z = (float(v) for v in self.gps.getValues())
+        if any(math.isnan(v) or math.isinf(v) for v in (x, y, z)):
+            return None
+        return (x, z, y)
 
     def _get_orientation(self):
         if self.imu:
