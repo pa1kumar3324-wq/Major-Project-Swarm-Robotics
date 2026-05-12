@@ -60,40 +60,63 @@ while robot.step(timestep) != -1:
             mapping.update_drone_position(msg.get("id"), msg.get("x"), msg.get("y"))
 
     # =========================
-    # 5. TARGET SELECTION
+    # 5. BATTERY MANAGEMENT
     # =========================
-    target = exploration.choose_target(mapping)
+    battery_status = motors.get_battery_status()
+
+    # Emergency: critical battery - return to base immediately
+    if motors.is_battery_critical():
+        base_position = (0.0, 0.0, 0.0)  # Rendezvous point at origin
+        control = navigation.move_to(base_position, state)
+        control = navigation.limit(control)
+        motors.apply(control)
+        continue
+
+    # =========================
+    # 6. TARGET SELECTION
+    # =========================
+    if battery_status["low_battery"]:
+        # Low battery: head to rendezvous point
+        rendezvous_point = (0.0, 0.0, 0.0)
+        target = rendezvous_point
+    else:
+        # Normal operation: explore or go to victims
+        target = exploration.choose_target(mapping)
+
     if target is None:
         motors.hover()
         continue
 
     # =========================
-    # 6. NAVIGATION
+    # 7. NAVIGATION
     # =========================
     control = navigation.move_to(target, state)
     control = navigation.limit(control)
 
     # =========================
-    # 7. VICTIM DETECTION
+    # 8. VICTIM DETECTION
     # =========================
     victim = detection.check(state)
     if victim:
         comm.send_victim(victim["x"], victim["y"])
 
     # =========================
-    # 8. PERIODIC COMMUNICATION
+    # 9. PERIODIC COMMUNICATION
     # =========================
     if step_count % COMM_INTERVAL == 0:
         updates = mapping.get_recent_updates()
         for cell in updates:
             comm.send_map_update(cell["x"], cell["y"], cell["value"])
 
+        # Share battery status with other drones
+        comm.send_battery_status(battery_status["level"])
+
     if step_count % POSITION_INTERVAL == 0:
         x, y, _ = state["position"]
         comm.send_position(x, y)
 
     # =========================
-    # 9. APPLY CONTROL
+    # 10. APPLY CONTROL
     # =========================
     motors.apply(control)
 
