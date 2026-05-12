@@ -30,3 +30,6 @@ class Communication:
 
     def send_victim(self, x, y):
         self.send({"type": "victim", "id": self.robot.getName(), "x": x, "y": y})
+
+    def send_battery_status(self, battery_level):
+        self.send({"type": "battery", "id": self.robot.getName(), "level": battery_level})
